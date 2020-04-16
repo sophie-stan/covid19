@@ -1,3 +1,6 @@
+import os
+os.chdir("/home/celaglae/Documents/ALGO_GRAPH_projet_COVID19/graph")
+
 from World import *
 from Person import *
 from Graph import *
@@ -32,14 +35,22 @@ g=Graph(p,circular=True, random=True, num_contact=k)
 k_prime=5
 subg=SubGraph(g,k_prime)
 
-w=World(death_rate, spread_rate, disease_time)
+## Low confinement
+low_confinement=False
 
-## Number of days 
+## High confinement
+high_confinement=True
+
+
+
+w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement)
+
+## Number of days
 days=6*30
 
 ## Static mode
 static=False
-## Dynamic mode 
+## Dynamic mode
 dynamic=False
 ## Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
 containment=True

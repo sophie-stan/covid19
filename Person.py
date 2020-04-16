@@ -30,6 +30,7 @@ class Person:
             if self.remaining_disease_time==0: ## end of the disease
                 if rd.random() < death_rate: ## death
                     self.state='D'
+                    self.confine_all()
                 else: ## immunity
                     self.state='R'
 
