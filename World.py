@@ -10,7 +10,7 @@ class World:
     ## Update all person of 'persons' which must be in the graph
     ## Return a dictionnary with the number of each state
     def update_all(self, graph, persons):
-        state={'S':0,'R':0,'D':0,'M':0}
+        state={'S':0,'R':0,'D':0,'M':0,'C':0}
         for k in range(len(persons)):
             if not (self.high_confinement and persons[k].is_confined):
                 for j in range(len(graph.adjacency[k])): ## for each nodes connected to persons[k]
@@ -18,6 +18,8 @@ class World:
             if persons[k].state=='M' and persons[k].remaining_disease_time!=0:
                 persons[k].remaining_disease_time-=1
             state[persons[k].state]+=1
+            if persons[k].is_confined:
+                state['C']+=1
             persons[k].update_visited(self.disease_time)
 
         return state

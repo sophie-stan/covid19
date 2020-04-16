@@ -1,5 +1,5 @@
 import os
-os.chdir("/home/celaglae/Documents/ALGO_GRAPH_projet_COVID19/graph")
+## sos.chdir("/home/celaglae/Documents/ALGO_GRAPH_projet_COVID19/graph")
 
 from World import *
 from Person import *
@@ -17,7 +17,7 @@ spread_rate=0.01
 disease_time=14
 
 ## Size of the population :
-population=1000
+population=100
 
 ## Creation of the population
 p=[]
@@ -46,7 +46,7 @@ high_confinement=True
 w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement)
 
 ## Number of days
-days=6*30
+days=20
 
 ## Static mode
 static=False
@@ -66,8 +66,9 @@ D=[]
 M=[]
 S=[]
 R=[]
+C=[]
 k=1
-state={'S':population-1,'R':0,'D':0,'M':1}
+state={'S':population-1,'R':0,'D':0,'M':1,'C':0}
 #for k in range(days):
 while state['M']!=0:
     if dynamic or static:
@@ -88,12 +89,15 @@ while state['M']!=0:
     M.append(state['M'])
     S.append(state['S'])
     R.append(state['R'])
+    C.append(state['C'])
     k+=1
 
 plt.plot(X,D,'.',label='Death')
 plt.plot(X,M,'.',label='Sick')
 plt.plot(X,S,'.',label='Safe')
 plt.plot(X,R,'.',label='Immunity')
+if low_confinement or high_confinement:
+    plt.plot(X,C,'.',label="Confined")
 
 plt.xlabel("Days")
 plt.ylabel("Number of people")

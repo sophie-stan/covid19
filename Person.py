@@ -36,11 +36,14 @@ class Person:
 
     ## Update the list 'visited'
     def update_visited(self, disease_time):
+        to_delete=[]
         for i in range(len(self.visited)):
-            if self.visited[k][1] > disease_time :
-                self.visited.pop(k)
+            if self.visited[i][1] > disease_time :
+                to_delete.append(i)
             else :
-                self.visited[k][1]+=1
+                self.visited[i][1]+=1
+        for k in range(len(to_delete)):
+            self.visited.pop(to_delete[k])
 
 
     def confine_all(self):
