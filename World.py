@@ -15,4 +15,6 @@ class World:
             if persons[k].state=='M' and persons[k].remaining_disease_time!=0:
                 persons[k].remaining_disease_time-=1
             state[persons[k].state]+=1
+            persons[k].update_visited(disease_time)
+            
         return state
