@@ -12,18 +12,18 @@ rd.seed()
 
 
 ## Parameters of the disease
-death_rate=0.03
+death_rate=0.1
 spread_rate=0.01
 disease_time=14
 
 ## Size of the population :
-population=100
+population=1000
 
 ## Creation of the population
 p=[]
 for k in range(population-1):
-    p.append(Person(k))
-p.append(Person(population-1, state='M', disease_time=disease_time)) ## one sick person
+    p.append(Person(k, disease_time))
+p.append(Person(population-1,disease_time, state='M')) ## one sick person
 
 ## Creation of the graph and the world
 k=50
@@ -36,10 +36,10 @@ k_prime=5
 subg=SubGraph(g,k_prime)
 
 ## Low confinement
-low_confinement=False
+low_confinement=True
 
 ## High confinement
-high_confinement=True
+high_confinement=False
 
 
 
