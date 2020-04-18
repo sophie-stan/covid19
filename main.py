@@ -12,17 +12,18 @@ rd.seed()
 
 
 ## Parameters of the disease
-death_rate=0.1
-spread_rate=0.01
+death_rate=0.5
+spread_rate=0.5
 disease_time=14
 
 ## Size of the population :
-population=1000
+population=100
 
 ## Creation of the population
 p=[]
-for k in range(population-1):
+for k in range(population-2):
     p.append(Person(k, disease_time))
+p.append(Person(population-2, disease_time, debug = True)) ## one debug person
 p.append(Person(population-1,disease_time, state='M')) ## one sick person
 
 ## Creation of the graph and the world
@@ -49,11 +50,11 @@ w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement
 days=20
 
 ## Static mode
-static=False
+static=True
 ## Dynamic mode
 dynamic=False
 ## Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
-containment=True
+containment=False
 
 
 
@@ -70,7 +71,7 @@ C=[]
 k=1
 state={'S':population-1,'R':0,'D':0,'M':1,'C':0}
 #for k in range(days):
-while state['M']!=0:
+while state['M']!=0 or state['C'] != 0:
     if dynamic or static:
         state=w.update_all(subg, p)
     else:
