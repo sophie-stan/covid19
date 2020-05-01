@@ -1,4 +1,6 @@
 import os
+from collections import namedtuple
+
 ## sos.chdir("/home/celaglae/Documents/ALGO_GRAPH_projet_COVID19/graph")
 
 from World import *
@@ -10,87 +12,93 @@ import random as rd
 import matplotlib.pyplot as plt
 rd.seed()
 
+# Graph parameters
+GRAPH_RANDOM = False
+GRAPH_CIRCULAR = True
+K = 50
+K_PRIME = 5
+# Enum: static, dynamic
+MODE = "static"
 
-## Parameters of the disease
-death_rate=0.03
-spread_rate=0.01
-disease_time=14
+# disease parameters
+DISEASE_PARAMS = Disease_Struct(DEATH_RATE = 0.03, SPREAD_RATE = 0.01, DISEASE_TIME = 14)
 
-## Size of the population :
-population=100
+## Size of the POPULATION_SIZE
+POPULATION_SIZE = 100
 
 ## Creation of the population
-p=[]
-for k in range(population-1):
-    p.append(Person(k))
-p.append(Person(population-1, state='M', disease_time=disease_time)) ## one sick person
+polulation = []
+for k in range(POPULATION_SIZE - 1):
+    population.append(Person(k))
+
+population.append(Person(POPULATION_SIZE - 1, state = 'M', contamination_day = 1)) ## one sick person
 
 ## Creation of the graph and the world
-k=50
-## Partie Clément : ###
+
+## Partie Clement : ###
 #g=Graph(p, random=True, num_contact=k)
 ## Partie Sophie : ###
 #g=Graph(p, circular=True)
-g=Graph(p,circular=True, random=True, num_contact=k)
-k_prime=5
-subg=SubGraph(g,k_prime)
+g = Graph(p, circular = GRAPH_CIRCULAR, random = GRAPH_RANDOM, num_contact = K)
+subg = SubGraph(g, K_PRIME)
+
+################################################################################
 
 ## Low confinement
-low_confinement=False
+low_confinement = False
 
 ## High confinement
-high_confinement=True
+high_confinement = True
 
-
-
-w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement)
-
-## Number of days
-days=20
-
-## Static mode
-static=False
-## Dynamic mode
-dynamic=False
 ## Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
-containment=True
+containment = True
 
+X = []
+D = []
+M = []
+S = []
+R = []
+C = []
 
+################################################################################
 
 ###############
 ## Main loop ##
 ###############
 
-X=[]
-D=[]
-M=[]
-S=[]
-R=[]
-C=[]
-k=1
-state={'S':population-1,'R':0,'D':0,'M':1,'C':0}
-#for k in range(days):
-while state['M']!=0:
+w = World(MODE, DISEASE_PARAMS, low_confinement, high_confinement)
+
+world_state = {'S':population - 1, 'R':0, 'D':0, 'M':1, 'C':0}
+
+# Main loop ends when all persons are healthy, dead or cured
+while world_state['M'] != 0:
+
     if dynamic or static:
-        state=w.update_all(subg, p)
+        world_state = w.update(subg, p)
     else:
-        state=w.update_all(g,p)
-    if state['M'] > 0.05*population and not(dynamic) and not(static) and containment:
-        dynamic=True
-        plt.plot([k,k],[0,population],label="Dynamic mode enable")
-    if state['M'] > 0.1*population and dynamic and not(static) and containment:
+        world_state = w.update(g, p)
+
+    # Study of the virus outbreak limited to 6m
+    if w.elapsed_days > (180):
+        break
+
+    if world_state['M'] > 0.05 * POPULATION_SIZE and not(dynamic) and not(static) and containment:
+        dynamic = True
+        plt.plot([k, k], [0, POPULATION_SIZE], label = "Dynamic mode enable")
+
+    if world_state['M'] > 0.1*POPULATION_SIZE and dynamic and not(static) and containment:
         dynamic=False
         static=True
-        plt.plot([k,k],[0,population],label="Static mode enable")
+        plt.plot([k,k],[0,POPULATION_SIZE],label="Static mode enable")
     if dynamic:
-        subg=SubGraph(g,k_prime)
+        subg = SubGraph(g,k_prime)
     X.append(k)
-    D.append(state['D'])
-    M.append(state['M'])
-    S.append(state['S'])
-    R.append(state['R'])
-    C.append(state['C'])
-    k+=1
+    D.append(world_state['D'])
+    M.append(world_state['M'])
+    S.append(world_state['S'])
+    R.append(world_state['R'])
+    C.append(world_state['C'])
+    elapsed_days += 1
 
 plt.plot(X,D,'.',label='Death')
 plt.plot(X,M,'.',label='Sick')
@@ -100,11 +108,9 @@ if low_confinement or high_confinement:
     plt.plot(X,C,'.',label="Confined")
 
 plt.xlabel("Days")
-plt.ylabel("Number of people")
+plt.ylabel("ID of people")
 plt.title("Modelisation of the Covid-19")
 plt.legend()
 plt.show()
 
-print(state)
-
-
+print(world_state)

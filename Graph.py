@@ -2,7 +2,7 @@ import random as rd
 
 class Graph:
 
-    ## persons is a list of persons sorted by person.number
+    ## persons is a list of persons sorted by person.ID
     def __init__(self, persons, circular=False, random=False, num_contact=None):
         self.num_vertices=len(persons)
         self.num_edges=0
@@ -15,7 +15,7 @@ class Graph:
         ## Must be done in first
         if random:
             if num_contact==None or num_contact > self.num_vertices:
-                print("Please enter a valid number of random contact")
+                print("Please enter a valid ID of random contact")
             else:
                 self.random_graph(persons, num_contact)
 
@@ -56,10 +56,10 @@ class Graph:
 
     ## Add edge between two persons
     def add_edge(self, person_1, person_2):
-        if not(person_2 in self.adjacency[person_1.number]):
+        if not(person_2 in self.adjacency[person_1.ID]):
             self.num_edges+=1
-            self.adjacency[person_1.number].append(person_2)
-            self.adjacency[person_2.number].append(person_1)
+            self.adjacency[person_1.ID].append(person_2)
+            self.adjacency[person_2.ID].append(person_1)
 
 
 
