@@ -13,7 +13,7 @@ rd.seed()
 
 ## Parameters of the disease
 death_rate=0.02
-spread_rate=0.03
+spread_rate=0.02
 disease_time=14
 
 ## Size of the population :
@@ -50,11 +50,11 @@ w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement
 days=20
 
 ## Static mode
-static=True
+static=False
 ## Dynamic mode
-dynamic=False
-## Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
-containment=False
+dynamic=True
+## Progressive mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
+progressive=False
 
 
 
@@ -76,10 +76,10 @@ while state['M']!=0 or state['C'] != 0:
         state=w.update_all(subg, p)
     else:
         state=w.update_all(g,p)
-    if state['M'] > 0.05*population and not(dynamic) and not(static) and containment:
+    if state['M'] > 0.05*population and not(dynamic) and not(static) and progressive:
         dynamic=True
         plt.plot([k,k],[0,population],label="Dynamic mode enable")
-    if state['M'] > 0.1*population and dynamic and not(static) and containment:
+    if state['M'] > 0.1*population and dynamic and not(static) and progressive:
         dynamic=False
         static=True
         plt.plot([k,k],[0,population],label="Static mode enable")
@@ -102,7 +102,7 @@ if low_confinement or high_confinement:
 
 plt.xlabel("Days")
 plt.ylabel("Number of people")
-plt.title("Mixed graph and dynamic mode")
+plt.title("Mixed graph and dynamic mode. Spread rate = 2%")
 plt.legend()
 plt.show()
 
