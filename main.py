@@ -13,7 +13,7 @@ rd.seed()
 
 ## Parameters of the disease
 death_rate=0.02
-spread_rate=0.02
+spread_rate=0.03
 disease_time=14
 
 ## Size of the population :
