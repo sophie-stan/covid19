@@ -12,18 +12,18 @@ rd.seed()
 
 
 ## Parameters of the disease
-death_rate=0.5
-spread_rate=0.5
+death_rate=0.02
+spread_rate=0.03
 disease_time=14
 
 ## Size of the population :
-population=100
+population=1000
 
 ## Creation of the population
 p=[]
 for k in range(population-2):
     p.append(Person(k, disease_time))
-p.append(Person(population-2, disease_time, debug = True)) ## one debug person
+p.append(Person(population-2, disease_time, debug = False)) ## one debug person
 p.append(Person(population-1,disease_time, state='M')) ## one sick person
 
 ## Creation of the graph and the world
@@ -37,7 +37,7 @@ k_prime=5
 subg=SubGraph(g,k_prime)
 
 ## Low confinement
-low_confinement=True
+low_confinement=False
 
 ## High confinement
 high_confinement=False
@@ -93,16 +93,16 @@ while state['M']!=0 or state['C'] != 0:
     C.append(state['C'])
     k+=1
 
-plt.plot(X,D,'.',label='Death')
+plt.plot(X,D,'.',label='Death ({}%)'.format(round(100*state['D']/population, 1)))
 plt.plot(X,M,'.',label='Sick')
-plt.plot(X,S,'.',label='Safe')
-plt.plot(X,R,'.',label='Immunity')
+plt.plot(X,S,'.',label='Safe ({}%)'.format(round(100*state['S']/population, 1)))
+plt.plot(X,R,'.',label='Immunity({}%)'.format(round(100*state['R']/population, 1)))
 if low_confinement or high_confinement:
     plt.plot(X,C,'.',label="Confined")
 
 plt.xlabel("Days")
 plt.ylabel("Number of people")
-plt.title("Modelisation of the Covid-19")
+plt.title("Mixed graph and dynamic mode")
 plt.legend()
 plt.show()
 
