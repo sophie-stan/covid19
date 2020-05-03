@@ -1,28 +1,44 @@
 import random as rd
 
+
 class SubGraph:
 
-    def __init__(self, graph, num_contact):
-        self.graph=graph
-        self.num_vertices=graph.num_vertices
-        self.num_edges=0
-        self.num_contact=num_contact
-        assert(self.num_contact <= graph.num_contact)
+    def __init__(self, relationships_graph, num_persons_to_visit, visiting_mode=None):
+        """
+        Parameters
+        ----------
+        graph is the network of relationships between the persons belonging to the population
+        num_persons_to_visit is the number of Persons a Person will visit daily
+        """
 
-        self.adjacency=[]
-        for k in range(self.num_vertices):
-            self.adjacency.append([])
+        self.relationships_graph = relationships_graph
+        self.population_size = relationships_graph.population_size
+        self.num_persons_to_visit = num_persons_to_visit
+        self.visiting_mode = visiting_mode
 
-        self.init_graph(graph)
+        # A person can't visit more persons than she is actually related to
+        assert (self.num_persons_to_visit <= relationships_graph.num_relationships)
+
+        if self.visiting_mode is None:
+            # Visiting everyone everyday
+            self.adjacency = relationships_graph.adjacency
+
+        else:
+            self.adjacency = [[] for k in range(self.population_size)]
+            size_pop = relationships_graph.population_size
+            for ID in range(size_pop):
+                self.adjacency[ID] = rd.sample(relationships_graph.adjacency[ID], self.num_persons_to_visit)
+                # Chooses self.num_persons_to_visit random persons
+                # among the potential contacts that i can have (graph.adjacency[i])
 
     def __str__(self):
         return self.adjacency.__str__()
-
     def __repr__(self):
         return self.__repr__()
 
-    ## Create the sub graph of the graph
-    def init_graph(self, graph):
-        N=len(graph.adjacency)
-        for k in range(N):
-            self.adjacency[k]=rd.sample(graph.adjacency[k], self.num_contact) ## Choose num_contact random persons from the possible contact in the main graph
+    # Removes a vertex from the graph (a person is dead)
+    def remove_vertex(self, dead_person):
+        for p in self.relationships_graph.adjacency[dead_person.ID]:
+            if dead_person in self.adjacency[p.ID]:
+                (self.adjacency[p.ID]).remove(dead_person)
+        self.adjacency[dead_person.ID].clear()
