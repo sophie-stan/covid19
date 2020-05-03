@@ -1,18 +1,20 @@
 class Person:
 
-    def __init__(self, ID, state='S', contamination_day=None, confinement_mode='None'):
+    def __init__(self, ID, state='S', contamination_day=None, confinement_mode='None', confinement_day=None):
         """
         Parameters
         ----------
         ID is a constant number which identifies a Person
         state is a character: S for Sain, M for Malade, R for Rémission, D for Décédé
         contamination_day is a constant number, the date of contamination
-        confined is an option which indicates the confinement of a Person
+        confinement_mode says whether or not a Person is confined and how
+        confinement_day is a constant number, the date of confinement
         """
         self.ID = ID
         self.state = state
         self.contamination_day = contamination_day
         self.confinement_mode = confinement_mode
+        self.confinement_day = confinement_day
         self.current_day_contacts = []
         # self.visited = [0 for i in range(disease_time)]
 
@@ -26,16 +28,13 @@ class Person:
     def is_confined(self):
         return not (self.confinement_mode == 'None')
 
-    # Adds person to the list of current day contacts of self
     def add_current_day_contacts(self, person):
+        """ Adds person to the list of current day contacts of self. """
         self.current_day_contacts.append(person)
 
-    # Frees the current_day_contacts of self (at the end of the day --> reset)
     def free_current_day_contacts(self):
+        """ Frees the current_day_contacts of self (at the end of the day --> reset). """
         self.current_day_contacts.clear()
-
-    def set_contamination_day(self, day):
-        self.contamination_day = day
 
 
 '''
