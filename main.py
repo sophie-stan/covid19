@@ -27,7 +27,7 @@ p.append(Person(population-2, disease_time, debug = False)) ## one debug person
 p.append(Person(population-1,disease_time, state='M')) ## one sick person
 
 ## Creation of the graph and the world
-k=50
+k=20
 ## Partie Clément : ###
 #g=Graph(p, random=True, num_contact=k)
 ## Partie Sophie : ###
@@ -37,7 +37,7 @@ k_prime=5
 subg=SubGraph(g,k_prime)
 
 ## Low confinement
-low_confinement=False
+low_confinement=True
 
 ## High confinement
 high_confinement=False
@@ -52,9 +52,9 @@ days=20
 ## Static mode
 static=False
 ## Dynamic mode
-dynamic=True
+dynamic=False
 ## Progressive mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of the population the static mode is enable)
-progressive=False
+progressive=True
 
 
 
@@ -72,17 +72,30 @@ k=1
 state={'S':population-1,'R':0,'D':0,'M':1,'C':0}
 #for k in range(days):
 while state['M']!=0 or state['C'] != 0:
+    label=""
     if dynamic or static:
         state=w.update_all(subg, p)
     else:
         state=w.update_all(g,p)
-    if state['M'] > 0.05*population and not(dynamic) and not(static) and progressive:
+
+    if state['M'] > 0.05*population and not(dynamic) and not(static) and progressive: ## Dynamic must be enabled
         dynamic=True
-        plt.plot([k,k],[0,population],label="Dynamic mode enable")
-    if state['M'] > 0.1*population and dynamic and not(static) and progressive:
+        if state['M'] > 0.1 * population: ## Static must be enabled
+            static=True
+            label="Static mode enable"
+        else:
+            dynamic=True
+            label="Dynamic mode enable"
+        
+    if state['M'] > 0.1*population and dynamic and not(static) and progressive: ## Static must be enabled
         dynamic=False
         static=True
-        plt.plot([k,k],[0,population],label="Static mode enable")
+        label="Static mode enable"
+        
+    
+    if len(label) != 0: ## A mode was enabled
+        plt.plot([k,k],[0,population],label=label)
+
     if dynamic:
         subg=SubGraph(g,k_prime)
     X.append(k)
@@ -102,7 +115,7 @@ if low_confinement or high_confinement:
 
 plt.xlabel("Days")
 plt.ylabel("Number of people")
-plt.title("Mixed graph and dynamic mode. Spread rate = 2%")
+plt.title("Mixed graph and progressive mode. Low containment")
 plt.legend()
 plt.show()
 

@@ -1,0 +1,20 @@
+1 Intro
+
+1.1 Présentation du sujet (rapide)
+1.2 Implémentation du graphe et des personnes
+
+
+2 Résultat et interprétation
+
+2.1 Première modélisation
+2.1.1 Graphe circulaire (statique et dynamique)
+2.1.2 Graphe aléatoire (statique et dynamique)
+2.1.3 Graphe mixte (statique et dynamique)
+2.1.4 Conclusion (choix du graphe mixte + mode évolutif)
+
+2.2 Tests et mise en quarantaine
+2.2.1 Sans test mais avec confinement
+2.2.2 Avec test sur proches des défunts
+2.2.3 Tests aléatoires et confinement
+2.2.4 Tests massifs
+2.2.5 Conclusion
