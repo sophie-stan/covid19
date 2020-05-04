@@ -1,5 +1,5 @@
 import os
-## sos.chdir("/home/celaglae/Documents/ALGO_GRAPH_projet_COVID19/graph")
+os.chdir("/home/celaglae/Documents/1A_ENSEIRB/ALGO_GRAPH_projet_COVID19/graph")
 
 from World import *
 from Person import *
@@ -43,6 +43,9 @@ low_confinement=True
 high_confinement=False
 
 
+## Parameter n' for random tests
+p_test=0.80
+n_prime = 100
 
 w=World(death_rate, spread_rate, disease_time, low_confinement, high_confinement)
 
@@ -74,9 +77,9 @@ state={'S':population-1,'R':0,'D':0,'M':1,'C':0}
 while state['M']!=0 or state['C'] != 0:
     label=""
     if dynamic or static:
-        state=w.update_all(subg, p)
+        state=w.update_all(subg, p, p_test, n_prime)
     else:
-        state=w.update_all(g,p)
+        state=w.update_all(g,p, p_test, n_prime)
 
     if state['M'] > 0.05*population and not(dynamic) and not(static) and progressive: ## Dynamic must be enabled
         dynamic=True
@@ -86,13 +89,13 @@ while state['M']!=0 or state['C'] != 0:
         else:
             dynamic=True
             label="Dynamic mode enable"
-        
+
     if state['M'] > 0.1*population and dynamic and not(static) and progressive: ## Static must be enabled
         dynamic=False
         static=True
         label="Static mode enable"
-        
-    
+
+
     if len(label) != 0: ## A mode was enabled
         plt.plot([k,k],[0,population],label=label)
 
@@ -115,7 +118,7 @@ if low_confinement or high_confinement:
 
 plt.xlabel("Days")
 plt.ylabel("Number of people")
-plt.title("Mixed graph and progressive mode. Low containment")
+plt.title("Mixed graph with mass tests . Low containment")
 plt.legend()
 plt.show()
 

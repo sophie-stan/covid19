@@ -18,7 +18,7 @@ class Person:
             self.remaining_disease_time=disease_time
         else:
             self.remaining_disease_time=0
-        
+
         if self.debug:
             print("DAY 1")
             print("I was born with the state {},  I am number {}".format(self.state, self.number))
@@ -44,10 +44,10 @@ class Person:
             if self.debug:
                 print("I become sick for {} day(s)".format(disease_time))
 
-        
+
 
     ## Update the list 'visited'
-    def update_end_of_day(self, disease_time, death_rate):
+    def update_end_of_day(self, disease_time, death_rate, p_test):
         if self.is_confined:
             if self.remaining_confinment_time == 0:
                 if self.debug:
@@ -72,7 +72,7 @@ class Person:
                     if self.debug:
                         print("I am dead :'(")
                     self.state='D'
-                    self.confine_all(disease_time)
+                    self.test_all_visited(disease_time, p_test)
                 else: ## immunity
                     if self.debug:
                         print("I become immune")
@@ -91,6 +91,21 @@ class Person:
                     if self.debug:
                         print("I confine {} for {} days".format(self.visited[i][j].number, self.visited[i][j].remaining_confinment_time))
 
+
+    ## Order to the person of the list visited to be tested
+    def test_all_visited(self, disease_time, p_test):
+        for i in range(len(self.visited)):
+            for j in range(len(self.visited[i])):
+                if not(self.visited[i][j].is_confined):
+                    self.visited[i][j].test_virus(disease_time, p_test)
+
+    ## Test the person if he was in contact with the deceased and confine him if he is positive to the virus
+    def test_virus(self, disease_time, p_test):
+        if self.state == 'M' and self.is_confined == False and rd.random() < p_test: ## the person will be tested positive to the virus and so will be confined
+            self.is_confined = True
+            self.remaining_confinment_time = disease_time + 1
+            if self.debug:
+                print("I confine myself for {} day(s)".format(self.remaining_confinment_time))
 
     ## Confine himself
     def confine(self, disease_time):

@@ -2,6 +2,7 @@ import random as rd
 
 class SubGraph:
 
+
     def __init__(self, graph, num_contact):
         self.graph=graph
         self.num_vertices=graph.num_vertices

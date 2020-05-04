@@ -1,3 +1,5 @@
+import random as rd
+
 class World:
 
     def __init__(self, death_rate, spread_rate, disease_time, low_confinement, high_confinement):
@@ -9,7 +11,7 @@ class World:
 
     ## Update all person of 'persons' which must be in the graph
     ## Return a dictionnary with the number of each state
-    def update_all(self, graph, persons):
+    def update_all(self, graph, persons, p_test, n_prime):
         state={'S':0,'R':0,'D':0,'M':0,'C':0}
         for k in range(len(persons)):
             if (self.low_confinement and persons[k].is_confined):
@@ -19,11 +21,16 @@ class World:
                 for j in range(len(graph.adjacency[k])): ## for each nodes connected to persons[k]
                     persons[k].update_in_contact(graph.adjacency[k][j], self.death_rate, self.spread_rate, self.disease_time)
 
-            persons[k].update_end_of_day(self.disease_time, self.death_rate)
+            persons[k].update_end_of_day(self.disease_time, self.death_rate, p_test)
 
             state[persons[k].state]+=1
             if persons[k].is_confined:
                 state['C']+=1
-            
 
+        #random tests each day on a random sample of n' < n persons
+        sample = rd.sample(persons, n_prime)
+        for j in range(len(sample)):
+            sample[j].test_virus(self.disease_time,p_test)
+            if sample[j].is_confined:
+                state['C']+=1
         return state
