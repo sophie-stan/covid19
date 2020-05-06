@@ -67,24 +67,21 @@ class World:
         Only if they're tested positive
         """
 
-        persons_to_confine = []
+        candidates_to_confinement = []
         for day in dead_person.daily_met_persons:
             for met_person in day:
-                persons_to_confine.append(met_person)
+                candidates_to_confinement.append(met_person)
         # Removes duplicates
-        tmp = set(persons_to_confine)
-        persons_to_confine = list(tmp)
+        tmp = set(candidates_to_confinement)
+        candidates_to_confinement = list(tmp)
 
-        for person_to_confine in persons_to_confine:
-            if person_to_confine.is_confined():
-                persons_to_confine.confinement_day = self.elapsed_days  # Person
-                persons_to_confine.remove(person_to_confine)
-
-            elif person_to_confine.state != 'M':
-                persons_to_confine.remove(person_to_confine)
-
-            elif (person_to_confine.state == 'M') and not (rd.random() < self.p_test):
-                persons_to_confine.remove(person_to_confine)
+        persons_to_confine = []
+        for candidate_to_confinement in candidates_to_confinement:
+            if (candidate_to_confinement.state == 'M') and (rd.random() < self.p_test):
+                if candidate_to_confinement.is_confined():
+                    candidate_to_confinement.confinement_day = self.elapsed_days  # Person
+                else:
+                    persons_to_confine.append(candidate_to_confinement)
 
         for person_to_confine in persons_to_confine:
             self.none_to_confined()  # World
@@ -122,8 +119,8 @@ class World:
                     sub_graph.relationships_graph.remove_vertex(person)  # Graph of contacts
 
                     if sub_graph.confinement_mode != "None":
-                        self.scenario_2(sub_graph, person)
-                        # self.scenario_3(sub_graph, person)
+                        #self.scenario_2(sub_graph, person)
+                        self.scenario_3(sub_graph, person)
 
                 else:
                     person.state = 'R'
