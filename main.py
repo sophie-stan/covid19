@@ -33,7 +33,7 @@ assert (K_PRIME <= K)
 # "None": K_PRIME = K
 # "static": people see the same K_PRIME chosen persons everyday
 # "dynamic": people choose K_PRIME different persons to see everyday
-VISITING_MODE = "static"
+VISITING_MODE = "dynamic"
 
 # Confinement mode: "None", "low", "high".
 #  "None": people see their K relationships everyday
@@ -43,12 +43,14 @@ CONFINEMENT_MODE = "high"
 # Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of
 # the population the static mode is enable) containment = True """
 
+# Test validity probability
+P_TEST = 0.7
+NUM_TESTED_PERSONS = POPULATION_SIZE // 3
+assert(NUM_TESTED_PERSONS < POPULATION_SIZE)
+
 # Disease parameters
 DiseaseStruct = namedtuple("DISEASE_PARAMS", "DEATH_RATE SPREAD_RATE DISEASE_TIME")
-DISEASE_PARAMS = DiseaseStruct(DEATH_RATE=0.1, SPREAD_RATE=0.03, DISEASE_TIME=14)
-
-# Test validity probability (-1 without tests?)
-P_TEST = 0.7
+DISEASE_PARAMS = DiseaseStruct(DEATH_RATE=0.2, SPREAD_RATE=0.03, DISEASE_TIME=14)
 
 """ INITIALIZATION """
 # Creation of the population in which the last person is infected on day one
@@ -62,7 +64,7 @@ G = Graph(population, circular=CIRCULAR_GRAPH, random=RANDOM_GRAPH, num_relation
 sub_G = SubGraph(relationships_graph=G, num_persons_to_visit=K_PRIME, visiting_mode=VISITING_MODE,
                  confinement_mode=CONFINEMENT_MODE)
 world_state = {'S': POPULATION_SIZE - 1, 'R': 0, 'D': 0, 'M': 1, 'C': 0}
-w = World(DISEASE_PARAMS, P_TEST, world_state)
+w = World(population, DISEASE_PARAMS, P_TEST, NUM_TESTED_PERSONS, world_state)
 
 X = []
 D = []
