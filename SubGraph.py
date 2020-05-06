@@ -101,8 +101,10 @@ class SubGraph:
     def remove_vertex(self, person):
         """ Removes a vertex from the sub_graph (a person is dead or confined highly) """
         for parent in self.will_be_visited_by[person.ID]:  # search visiting parents
-            (self.will_visit[parent.ID]).remove(person)
+            if person in self.will_visit[parent.ID]:
+                (self.will_visit[parent.ID]).remove(person)
         for child in self.will_visit[person.ID]:
             (self.will_be_visited_by[child.ID]).remove(person)
+
         self.will_visit[person.ID].clear()
         self.will_be_visited_by[person.ID].clear()

@@ -22,7 +22,7 @@ CIRCULAR_GRAPH = True
 POPULATION_SIZE = 1000
 
 # Number of relationships (contacts)
-K = 50
+K = 10
 
 # Number of visited persons per day
 K_PRIME = 5
@@ -45,20 +45,24 @@ CONFINEMENT_MODE = "high"
 
 # Disease parameters
 DiseaseStruct = namedtuple("DISEASE_PARAMS", "DEATH_RATE SPREAD_RATE DISEASE_TIME")
-DISEASE_PARAMS = DiseaseStruct(DEATH_RATE=0.02, SPREAD_RATE=0.03, DISEASE_TIME=14)
+DISEASE_PARAMS = DiseaseStruct(DEATH_RATE=0.1, SPREAD_RATE=0.03, DISEASE_TIME=14)
+
+# Test validity probability (-1 without tests?)
+P_TEST = 0.7
 
 """ INITIALIZATION """
 # Creation of the population in which the last person is infected on day one
 population = []
 for ID in range(POPULATION_SIZE - 1):
-    population.append(Person(ID, DISEASE_PARAMS))
-population.append(Person(POPULATION_SIZE - 1, DISEASE_PARAMS, state='M', contamination_day=1))
+    population.append(Person(ID, DISEASE_PARAMS.DISEASE_TIME))
+population.append(Person(POPULATION_SIZE - 1, DISEASE_PARAMS.DISEASE_TIME, state='M', contamination_day=1))
 
 # Creation of the sub_graph, sub_graph and the world
 G = Graph(population, circular=CIRCULAR_GRAPH, random=RANDOM_GRAPH, num_relationships=K)
-sub_G = SubGraph(relationships_graph=G, visiting_mode=VISITING_MODE, num_persons_to_visit=K_PRIME)  # does not change
+sub_G = SubGraph(relationships_graph=G, num_persons_to_visit=K_PRIME, visiting_mode=VISITING_MODE,
+                 confinement_mode=CONFINEMENT_MODE)
 world_state = {'S': POPULATION_SIZE - 1, 'R': 0, 'D': 0, 'M': 1, 'C': 0}
-w = World(DISEASE_PARAMS, world_state)
+w = World(DISEASE_PARAMS, P_TEST, world_state)
 
 X = []
 D = []
@@ -69,9 +73,9 @@ C = []
 
 """ MAIN LOOP 
 Main loop ends when all persons are healthy, dead or cured
-Or in case people remain sick, after 6 months
+Or in case people remain sick, after 12 months
 """
-while (world_state['M'] != 0) and (w.elapsed_days < 180):
+while (world_state['M'] != 0) and (w.elapsed_days < 360):
     world_state = w.update_world(sub_G, population)
 
     '''
@@ -94,12 +98,11 @@ while (world_state['M'] != 0) and (w.elapsed_days < 180):
     R.append(world_state['R'])
     C.append(world_state['C'])
 
-plt.plot(X, D, '.', label='Dead')
-plt.plot(X, M, '.', label='Sick')
-plt.plot(X, S, '.', label='Healthy')
-plt.plot(X, R, '.', label='Reminiscent')
-if CONFINEMENT_MODE != "None":
-    plt.plot(X, C, '.', label="Confined")
+plt.plot(X, D, color='black', label='Dead')
+plt.plot(X, M, color='red', label='Sick')
+plt.plot(X, S, color='green', label='Healthy')
+plt.plot(X, R, color='orange', label='Reminiscent')
+plt.plot(X, C, color='purple', label='Confined')
 
 plt.xlabel("Days")
 plt.ylabel("ID of people")

@@ -3,40 +3,95 @@ import random as rd
 
 class World:
 
-    def __init__(self, disease_params, world_state, elapsed_days=1):
+    def __init__(self, disease_params, p_test, world_state, elapsed_days=1):
         """
         Parameters
         ----------
-        disease_params is a structure (Death_rate, Spread_rate, disease_time).
+        disease_time is a structure (Death_rate, Spread_rate, disease_time).
         world_state is a dictionary in which person states are counted.
         elapsed_days (the counter of elapsed days since the beginning of the experiment).
         """
         self.death_rate = disease_params.DEATH_RATE
         self.spread_rate = disease_params.SPREAD_RATE
         self.disease_time = disease_params.DISEASE_TIME
+        self.p_test = p_test
         self.world_state = world_state
         self.elapsed_days = elapsed_days
 
     # World state updates
-    def m_to_d(self):
+    def sick_to_dead(self):
         self.world_state['M'] -= 1
         self.world_state['D'] += 1
 
-    def m_to_r(self):
+    def sick_to_reminiscent(self):
         self.world_state['M'] -= 1
         self.world_state['R'] += 1
 
-    def s_to_m(self):
+    def healthy_to_sick(self):
         self.world_state['S'] -= 1
         self.world_state['M'] += 1
 
-    def none_to_c(self):
+    def none_to_confined(self):
         self.world_state['C'] += 1
 
-    def c_to_none(self):
+    def confined_to_none(self):
         self.world_state['C'] -= 1
 
-    # Persons update (state, confinement, dayly_met_persons)
+    def scenario_2(self, sub_graph, dead_person):
+        """ Scenario 2:
+        Persons in contact with the dead person get confined.
+        """
+        candidates_to_confinement = []
+        for day in dead_person.daily_met_persons:
+            for met_person in day:
+                candidates_to_confinement.append(met_person)
+        # Removes duplicates
+        tmp = set(candidates_to_confinement)
+        candidates_to_confinement = list(tmp)
+
+        persons_to_confine = []
+        for candidate_to_confinement in candidates_to_confinement:
+            if candidate_to_confinement.is_confined():
+                candidate_to_confinement.confinement_day = self.elapsed_days  # Person
+            else:
+                persons_to_confine.append(candidate_to_confinement)
+
+        for person_to_confine in persons_to_confine:
+            self.none_to_confined()  # World
+            person_to_confine.confinement_day = self.elapsed_days  # Person
+            sub_graph.confined_person(person_to_confine)  # SubGraph
+
+    def scenario_3(self, sub_graph, dead_person):
+        """ Scenario 3:
+        Persons in contact with the dead person get confined
+        Only if they're tested positive
+        """
+
+        persons_to_confine = []
+        for day in dead_person.daily_met_persons:
+            for met_person in day:
+                persons_to_confine.append(met_person)
+        # Removes duplicates
+        tmp = set(persons_to_confine)
+        persons_to_confine = list(tmp)
+
+        for person_to_confine in persons_to_confine:
+            if person_to_confine.is_confined():
+                persons_to_confine.confinement_day = self.elapsed_days  # Person
+                persons_to_confine.remove(person_to_confine)
+
+            elif person_to_confine.state != 'M':
+                persons_to_confine.remove(person_to_confine)
+
+            elif (person_to_confine.state == 'M') and not (rd.random() < self.p_test):
+                persons_to_confine.remove(person_to_confine)
+
+        for person_to_confine in persons_to_confine:
+            self.none_to_confined()  # World
+            person_to_confine.confinement_day = self.elapsed_days  # Person
+            sub_graph.confined_person(person_to_confine)  # SubGraph
+
+    # Persons update (state, confinement, daily_met_persons)
     # along with the graphs
     def update_world(self, sub_graph, population):
 
@@ -49,12 +104,12 @@ class World:
                     if rd.random() < self.spread_rate:
                         person.state = 'M'
                         person.contamination_day = self.elapsed_days
-                        self.s_to_m()
+                        self.healthy_to_sick()
                 if person.state == 'M' and person_to_see.state == 'S':
                     if rd.random() < self.spread_rate:
                         person_to_see.state = 'M'
                         person_to_see.contamination_day = self.elapsed_days
-                        self.s_to_m()
+                        self.healthy_to_sick()
 
             person.add_daily_met_persons(sub_graph.will_visit[person.ID], sub_graph.will_be_visited_by[person.ID])
 
@@ -62,35 +117,23 @@ class World:
             if person.state == 'M' and (self.elapsed_days - person.contamination_day == self.disease_time):
                 if rd.random() < self.death_rate:
                     person.state = 'D'
-                    self.m_to_d()
-                    sub_graph.remove_vertex(person)  # sub_graph of meetings
-                    sub_graph.relationships_graph.remove_vertex(person)  # sub_graph of contacts
+                    self.sick_to_dead()  # World
+                    sub_graph.remove_vertex(person)  # SubGraph of meetings
+                    sub_graph.relationships_graph.remove_vertex(person)  # Graph of contacts
 
-                    """ Scenario 2
-                    Persons in relation with dead person get confined
-                    Aim: find those persons in the daily_met_persons of person
-                    """
-                    persons_to_confine = []
-                    for day in person.daily_met_persons:
-                        for met_person in day:
-                            persons_to_confine.append(met_person)
-                    # Removes duplicates
-                    tmp = set(persons_to_confine)
-                    persons_to_confine = list(tmp)
-                    for person_to_confine in persons_to_confine:
-                        self.none_to_c()
-                        person_to_confine.confinement_day = self.elapsed_days
-                        sub_graph.confined_person(person_to_confine)
+                    if sub_graph.confinement_mode != "None":
+                        self.scenario_2(sub_graph, person)
+                        # self.scenario_3(sub_graph, person)
 
                 else:
                     person.state = 'R'
-                    self.m_to_r()
+                    self.sick_to_reminiscent()
 
             # Confined persons can stop confinement after r + 1 days of confinement
             if person.is_confined():
                 if (self.elapsed_days - person.confinement_day) == (self.disease_time + 1):
-                    person.confinement_day = - 1  # no more confined
-                    self.c_to_none()  # World
+                    person.confinement_day = - 1  # Person
+                    self.confined_to_none()  # World
                     sub_graph.confined_person(person)  # SubGraph
 
         sub_graph.update_subgraph()

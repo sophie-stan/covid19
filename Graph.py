@@ -62,11 +62,13 @@ class Graph:
                 self.add_edge(self.population[i], person)
 
     def remove_vertex(self, dead_person):
-        """ Removes a vertex from the sub_graph (a person is dead) """
-        for person in self.can_be_visited_by[dead_person.ID]:  # search parents
-            (self.can_visit[person.ID]).remove(dead_person)  # remove the dead child
-        for person in self.can_visit[dead_person.ID]:  # search children
-            (self.can_be_visited_by[person.ID]).remove(dead_person)  # remove the dead parent
+        """ Removes a vertex from the Graph (a person is dead) """
+        for parent in self.can_be_visited_by[dead_person.ID]:  # search parents
+            if dead_person in self.can_visit[parent.ID]:
+                (self.can_visit[parent.ID]).remove(dead_person)  # remove the dead child
+        for child in self.can_visit[dead_person.ID]:  # search children
+            if dead_person in self.can_be_visited_by[child.ID]:
+                (self.can_be_visited_by[child.ID]).remove(dead_person)  # remove the dead parent
 
         self.can_visit[dead_person.ID].clear()  # remove all children
         self.can_be_visited_by[dead_person.ID].clear()  # remove all parents

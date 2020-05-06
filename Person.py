@@ -1,6 +1,6 @@
 class Person:
 
-    def __init__(self, ID, disease_params, state='S', contamination_day=None, confinement_day=None):
+    def __init__(self, ID, disease_time, state='S', contamination_day=None, confinement_day=None):
         """
         Parameters
         ----------
@@ -14,7 +14,7 @@ class Person:
         self.state = state
         self.contamination_day = contamination_day
         self.confinement_day = confinement_day
-        self.disease_time = disease_params.DISEASE_TIME
+        self.disease_time = disease_time
         self.daily_met_persons = []
 
     def __str__(self):
@@ -25,7 +25,7 @@ class Person:
         return self.__str__()
 
     def is_confined(self):
-        return not ((self.confinement_day is None) or (self.confinement_day == -1))
+        return not ((self.confinement_day is None) and not(self.confinement_day == -1))
 
     def add_daily_met_persons(self, visited, visited_by):
         """ Adds daily persons met to queue """
