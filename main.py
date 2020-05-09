@@ -61,11 +61,13 @@ class Scenario(Enum):
     MASSIVE_TESTS = 5
 
 
-SCENARIO = Scenario(5)
+NUM_SCENARIO = 5
+assert( 1 <= NUM_SCENARIO <= 5)
+SCENARIO = Scenario(NUM_SCENARIO)
+
 
 # Estimated number of available beds for sick persons (In France, it's actually 0,00001%...)
 NUM_BEDS = POPULATION_SIZE // 5
-
 
 """ INITIALIZATION """
 # Creation of the population in which the last person is infected on day one
@@ -90,19 +92,23 @@ C = []
 
 """ MAIN LOOP 
 Main loop ends when all persons are healthy, dead or healed
-Or in case people remain sick, after 12 months
+Or in case people remain sick, after 6 months
 """
 while (world_state['M'] != 0) and (w.elapsed_days < 180):
     world_state = w.update_world(sub_G, population)
 
     """
+    # Progressive mode (dynamic then static enabled automatically)
+    # To use it, remove triple quotes
     label = ""
-    if world_state['M'] > 0.05 * POPULATION_SIZE and VISITING_MODE == "None" and CONFINEMENT_MODE != "None":
+    if world_state['M'] > 0.05 * POPULATION_SIZE and VISITING_MODE == "None":
         VISITING_MODE = "dynamic"
+        sub_G.visiting_mode = VISITING_MODE
         label = "Dynamic mode enable"
 
-    if world_state['M'] > 0.1 * POPULATION_SIZE and VISITING_MODE == "dynamic" and CONFINEMENT_MODE != "None":
+    if world_state['M'] > 0.15 * POPULATION_SIZE and VISITING_MODE == "dynamic":
         VISITING_MODE = "static"
+        sub_G.visiting_mode = "static"
         label = "Static mode enable"
 
     if len(label) != 0:  # A mode was enabled
@@ -131,7 +137,7 @@ plt.hlines(NUM_BEDS, 0, w.elapsed_days, color='black', label='Number of beds', l
 
 plt.xlabel("Days")
 plt.ylabel("Number of persons")
-# plt.title(" Mixed graph")
+
 plt.title("Modelling of a disease, visiting mode = " + VISITING_MODE
           + ", confinement mode = " + CONFINEMENT_MODE)
 plt.legend()
