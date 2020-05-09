@@ -1,20 +1,20 @@
 class Person:
 
-    def __init__(self, ID, disease_time, state='S', contamination_day=None, confinement_day=None):
+    def __init__(self, ID, disease_duration, state='S', contamination_day=None, confinement_day=None):
         """
         Parameters
         ----------
-        ID is a constant number which identifies a Person
-        state is a character: S for Sain, M for Malade, R for Rémission, D for Décédé
+        ID is a constant number which identifies a Person.
+        disease_duration is the duration of the disease.
+        state is a character: 'S' for Sain, 'M' for Malade, 'R' for Rémission, 'D' for Décédé
         contamination_day is a constant number, the date of contamination
-        confinement_mode says whether or not a Person is confined and how
         confinement_day is a constant number, the date of confinement
         """
         self.ID = ID
         self.state = state
         self.contamination_day = contamination_day
         self.confinement_day = confinement_day
-        self.disease_time = disease_time
+        self.disease_duration = disease_duration
         self.daily_met_persons = []
 
     def __str__(self):
@@ -31,13 +31,15 @@ class Person:
         """ Adds daily persons met to queue """
         met_persons = visited + visited_by
         self.daily_met_persons.append(met_persons)
-        if len(self.daily_met_persons) > self.disease_time:
+        if len(self.daily_met_persons) > self.disease_duration:
             self.daily_met_persons.pop(0)
 
-
-''' 
-def confine_all(self):
-    for i in range(disease_time):
-        self.visited[i][0].is_confined = True
-        
-    '''
+    def construct_candidates_to_confinement(self):
+        """ When self dies, construct the list of candidates to confinement. """
+        candidates_to_confinement = []
+        for day in self.daily_met_persons:
+            candidates_to_confinement += day
+        # Removes duplicates
+        tmp = set(candidates_to_confinement)
+        candidates_to_confinement = list(tmp)
+        return candidates_to_confinement

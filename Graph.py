@@ -2,11 +2,11 @@ import random as rd
 
 
 class Graph:
-    """ This class allows to construct a sub_graph implemented by an will_visit list.
+    """ This class allows to construct an oriented Graph implemented by an adjacency list and a list of "parents".
 
-    Vertices are Person.
-    Each Person has a group of a certain amounts of relationships.
-    A sub_graph can be random, circular, or mixed.
+    Vertices are Persons.
+    Each Person has a group with a certain amounts of relationships.
+    A graph can be random, circular, or mixed (union of both).
     """
 
     def __init__(self, population, num_relationships, circular=False, random=False):
@@ -15,8 +15,8 @@ class Graph:
         ----------
         population is the list of all the Persons sorted out following their ID.
         num_relationships is the number of Persons, a Person is related to.
-        circular is an option which allows to set up a circular sub_graph.
-        random is an option which allows to set up a random sub_graph.
+        circular is an option which allows to set up a circular graph.
+        random is an option which allows to set up a random graph.
         """
         self.population = population
         self.population_size = len(population)
@@ -64,11 +64,10 @@ class Graph:
     def remove_vertex(self, dead_person):
         """ Removes a vertex from the Graph (a person is dead) """
         for parent in self.can_be_visited_by[dead_person.ID]:  # search parents
-            if dead_person in self.can_visit[parent.ID]:
-                (self.can_visit[parent.ID]).remove(dead_person)  # remove the dead child
+            (self.can_visit[parent.ID]).remove(dead_person)  # remove the dead child
         for child in self.can_visit[dead_person.ID]:  # search children
-            if dead_person in self.can_be_visited_by[child.ID]:
-                (self.can_be_visited_by[child.ID]).remove(dead_person)  # remove the dead parent
+
+            (self.can_be_visited_by[child.ID]).remove(dead_person)  # remove the dead parent
 
         self.can_visit[dead_person.ID].clear()  # remove all children
         self.can_be_visited_by[dead_person.ID].clear()  # remove all parents

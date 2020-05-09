@@ -14,19 +14,18 @@ def my_rd_sample(L, n):
 class SubGraph:
     """ This class gathers the lists of Persons, a Person will see on D-day.
 
-    A SubGraph is the Graph of relationships if there is no visiting mode. (K = K_PRIME)
-    Any other cases: each Person chooses num_persons_to_visit among the num_relationships they have
-    Warnings: Person cannot choose more persons to visit than they actually know (see circular)
+    A SubGraph is the initial Graph of relationships if there is no visiting mode enabled (K = K_PRIME).
+    Any other cases: each Person chooses num_persons_to_visit among the num_relationships they have.
     """
 
     def __init__(self, relationships_graph, num_persons_to_visit, visiting_mode="None", confinement_mode="None"):
         """
         Parameters
         ----------
-        relationships_graph is the network of relationships/contacts between the Persons
-        num_persons_to_visit is the number of Persons a Person will visit daily
-        visiting_mode can be None, dynamic or static (how persons can meet)
-        confinement_mode can be None, low or high (see main)
+        relationships_graph is the network of relationships/contacts between the Persons.
+        num_persons_to_visit is the number of Persons a Person will visit daily.
+        visiting_mode can be None, dynamic or static (see main.py).
+        confinement_mode can be None, low or high (see main.py)
         """
 
         self.relationships_graph = relationships_graph
@@ -62,10 +61,11 @@ class SubGraph:
             self.construct_list_of_persons_to_visit(person)
 
     def construct_list_of_persons_to_visit(self, person):
+        """ Construct the list of persons, a person will visit."""
         # Random list generated
         self.will_visit[person.ID] = my_rd_sample(self.relationships_graph.can_visit[person.ID],
                                                   self.num_persons_to_visit)
-        # Confined persons eliminated
+        # Confined persons should not be visited
         for can_visit_person in self.will_visit[person.ID]:
             if can_visit_person.is_confined():
                 self.will_visit[person.ID].remove(can_visit_person)
@@ -75,14 +75,14 @@ class SubGraph:
             self.will_be_visited_by[will_visit_person.ID].append(person)  # and know their visiting father
 
     def update_subgraph(self):
-        """ The sub_graph needs to be updated only if dynamic mode"""
+        """ The sub_graph needs to be updated only if dynamic mode is enabled. """
         if self.visiting_mode == "dynamic":
             self.will_visit = [[] for k in range(self.population_size)]
             self.will_be_visited_by = [[] for k in range(self.population_size)]
             self.construct_sub_graph()
 
-    def confined_person(self, person):
-        """ person becomes confined and is not more allowed to see some persons. """
+    def targeted_confinement(self, person):
+        """ person becomes confined and is not more allowed to see persons. """
         # High confinement is like being dead almost
         if self.confinement_mode == "high":
             self.remove_vertex(person)
@@ -90,7 +90,7 @@ class SubGraph:
         elif self.confinement_mode == "low":
             self.construct_list_of_persons_to_visit(person)
 
-    def unconfined_person(self, person):
+    def targeted_deconfinement(self, person):
         """ person is not confined anymore, she can see other persons again. """
         if self.visiting_mode == "None":
             self.will_visit[person.ID] = copy.copy(self.relationships_graph.will_visit[person.ID])
