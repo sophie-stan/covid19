@@ -2,7 +2,7 @@ Covid-19 Project
 ================
 
 This is a Python Project which aims to modelize the Covid-19 disease propagation.
-More details about the project and its implementation can be found the pdf file *dm_covid19_v2.pdf*.
+More details about the project and its implementation can be found the pdf file *report.pdf*.
 
 Dependencies
 ------------
