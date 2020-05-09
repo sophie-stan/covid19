@@ -18,7 +18,7 @@ RANDOM_GRAPH = True
 CIRCULAR_GRAPH = True
 
 # Graph size (constant)
-POPULATION_SIZE = 10000
+POPULATION_SIZE = 1000
 
 # Number of relationships (contacts)
 K = 50
@@ -42,12 +42,12 @@ VISITING_MODE = "dynamic"
 # "None": people see their K relationships everyday
 # "low": static mode during DISEASE_DURATION + 1 days
 # "high": NO CONTACT AT ALL during DISEASE_DURATION + 1
-CONFINEMENT_MODE = "None"
+CONFINEMENT_MODE = "high"
 # Containment mode (when 5% of the population is sick the dynamic mode is automatically enable and when it 10% of
 # the population the static mode is enable) containment = True """
 
 # Test validity probability
-P_TEST = 0.7
+P_TEST = 0.8
 NUM_TESTED_PERSONS = POPULATION_SIZE // 10
 assert (NUM_TESTED_PERSONS < POPULATION_SIZE)
 
@@ -61,7 +61,7 @@ class Scenario(Enum):
     MASSIVE_TESTS = 5
 
 
-SCENARIO = Scenario(4)
+SCENARIO = Scenario(5)
 
 # Estimated number of available beds for sick persons (In France, it's actually 0,00001%...)
 NUM_BEDS = POPULATION_SIZE // 5

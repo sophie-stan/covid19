@@ -165,6 +165,6 @@ class World:
                     sub_graph.targeted_confinement(person)  # SubGraph
 
 
-        sub_graph.update_subgraph()
+        sub_graph.update_sub_graph()
         self.elapsed_days += 1
         return self.world_state

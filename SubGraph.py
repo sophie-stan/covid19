@@ -61,20 +61,28 @@ class SubGraph:
             self.construct_list_of_persons_to_visit(person)
 
     def construct_list_of_persons_to_visit(self, person):
-        """ Construct the list of persons, a person will visit."""
+        """ Construct the list of persons, a person will visit,
+         After freeing it."""
+
+        # Freeing the old list of persons (if non empty)
+        for will_visit_person in self.will_visit[person.ID]:  # children must be aware
+            self.will_be_visited_by[will_visit_person.ID].remove(person)
+            # and know their visiting father won't visit them
+        self.will_visit[person.ID].clear()
+
         # Random list generated
-        self.will_visit[person.ID] = my_rd_sample(self.relationships_graph.can_visit[person.ID],
-                                                  self.num_persons_to_visit)
+        candidates_to_visit = my_rd_sample(self.relationships_graph.can_visit[person.ID],
+                                           self.num_persons_to_visit)
         # Confined persons should not be visited
-        for can_visit_person in self.will_visit[person.ID]:
-            if can_visit_person.is_confined():
-                self.will_visit[person.ID].remove(can_visit_person)
+        for can_visit_person in candidates_to_visit:
+            if not (can_visit_person.is_confined()):
+                self.will_visit[person.ID].append(can_visit_person)
 
         # Update of children's list can_be_visited_by
         for will_visit_person in self.will_visit[person.ID]:  # children must be aware
-            self.will_be_visited_by[will_visit_person.ID].append(person)  # and know their visiting father
+            self.will_be_visited_by[will_visit_person.ID].append(person)
 
-    def update_subgraph(self):
+    def update_sub_graph(self):
         """ The sub_graph needs to be updated only if dynamic mode is enabled. """
         if self.visiting_mode == "dynamic":
             self.will_visit = [[] for k in range(self.population_size)]
@@ -82,12 +90,13 @@ class SubGraph:
             self.construct_sub_graph()
 
     def targeted_confinement(self, person):
-        """ person becomes confined and is not more allowed to see persons. """
+        """ person becomes confined and is no more allowed to see persons. """
         # High confinement is like being dead almost
         if self.confinement_mode == "high":
             self.remove_vertex(person)
         # Low confinement is a static mode for one person
         elif self.confinement_mode == "low":
+            self.remove_vertex(person)
             self.construct_list_of_persons_to_visit(person)
 
     def targeted_deconfinement(self, person):
